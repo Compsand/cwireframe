@@ -3,6 +3,7 @@
 #include <ncurses.h>
 #include "drawing.h"
 
+/* function for rotating an array of vertices (broken currently) */
 void rotatey(V3 *ve, int veamnt, float rads, V3 center){
 	for(int i = 0; i < veamnt; i++){
 		ve[i].x = center.x + (ve[i].x-center.x)*cos(rads)-(ve[i].z-center.z)*sin(rads);
@@ -12,6 +13,7 @@ void rotatey(V3 *ve, int veamnt, float rads, V3 center){
 
 int main(int argc, char *argv[])
 {
+	/* vertices for the model */
 	V3 ve[8] = {
 		{0.1, 0.1, 0.1},
 		{-0.1, 0.1, 0.1},
@@ -23,6 +25,7 @@ int main(int argc, char *argv[])
 		{0.1, -0.1, -0.1}
 	};
 
+	/* lines between vertices */
 	V3set ln[12] = {
 		{&ve[0],&ve[1]},
 		{&ve[1],&ve[2]},
@@ -38,32 +41,25 @@ int main(int argc, char *argv[])
 		{&ve[3],&ve[7]}
 	};
 
+	/* ncurses initialization */
 	initscr();
 	curs_set(0);
 	
 	int termw, termh;
-	int paused = 1;
 	getmaxyx(stdscr, termh, termw);
 
 	cbreak();
 
+	/* main loop */
 	while(true){
 
 		/* get input */
 		char ans = getch();
 		
+		/* controls */
 		switch (ans) {
 			case 'q':
 				goto end;
-				break;
-			case 'p':
-				if(paused){
-					paused = 0;
-					halfdelay(1);
-				} else {
-					paused = 1;
-					cbreak();
-				}
 				break;
 			case 'w':
 				for(int i = 0; i < 8; i++){
@@ -102,6 +98,7 @@ int main(int argc, char *argv[])
 
 		/* draw */
 		clear();
+		/* go throught all the lines and draw them */
 		for(int i = 0; i < 12; i++) {
 			line3d(*ln[i].a, *ln[i].b, termw<termh ? termw : termh);
 		}
