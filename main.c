@@ -62,22 +62,22 @@ void line(V2 start, V2 end){
 /* size is the size of the 2d area to project onto */
 void line3d(V3 start, V3 end, int size){
 	/* avoid division by zero */
-	if(start.z == 0 || end.z == 0) return;
+	if(start.z < 0.0 || end.z < 0.0) return;
 	
 	/* project */
-	V2 start2d = {start.x / start.z, start.y / start.z};
-	V2 end2d = {end.x / end.z, end.y / end.z};
+	V2 start2d = {start.x / start.z, -start.y / start.z};
+	V2 end2d = {end.x / end.z, -end.y / end.z};
 	
 	/* translate to terminal coordintates */
+	start2d.x *= (float)size;
+	start2d.y *= (float)size;
+	end2d.x *= (float)size;
+	end2d.y *= (float)size;
+
 	start2d.x += size / 2;
 	start2d.y += size / 2;
 	end2d.x += size / 2;
 	end2d.y += size / 2;
-
-	start2d.x *= size;
-	start2d.y *= size;
-	end2d.x *= size;
-	end2d.y *= size;
 
 	/* draw!! */
 	line(start2d, end2d);
@@ -85,6 +85,32 @@ void line3d(V3 start, V3 end, int size){
 
 int main(int argc, char *argv[])
 {
+	V3 ve[8] = {
+		{0.1, 0.1, 0.1},
+		{-0.1, 0.1, 0.1},
+		{-0.1, -0.1, 0.1},
+		{0.1, -0.1, 0.1},
+		{0.1, 0.1, -0.1},
+		{-0.1, 0.1, -0.1},
+		{-0.1, -0.1, -0.1},
+		{0.1, -0.1, -0.1}
+	};
+
+	V3set ln[12] = {
+		{&ve[0],&ve[1]},
+		{&ve[1],&ve[2]},
+		{&ve[2],&ve[3]},
+		{&ve[3],&ve[0]},
+		{&ve[4],&ve[5]},
+		{&ve[5],&ve[6]},
+		{&ve[6],&ve[7]},
+		{&ve[7],&ve[4]},
+		{&ve[0],&ve[4]},
+		{&ve[1],&ve[5]},
+		{&ve[2],&ve[6]},
+		{&ve[3],&ve[7]}
+	};
+
 	initscr();
 	curs_set(0);
 	
@@ -112,10 +138,43 @@ int main(int argc, char *argv[])
 					cbreak();
 				}
 				break;
+			case 'w':
+				for(int i = 0; i < 8; i++){
+					ve[i].z += 0.1;
+				}
+				break;
+			case 's':
+				for(int i = 0; i < 8; i++){
+					ve[i].z -= 0.1;
+				}
+				break;
+			case 'j':
+				for(int i = 0; i < 8; i++){
+					ve[i].y -= 0.1;
+				}
+				break;
+			case 'k':
+				for(int i = 0; i < 8; i++){
+					ve[i].y += 0.1;
+				}
+				break;
+			case 'h':
+				for(int i = 0; i < 8; i++){
+					ve[i].x -= 0.1;
+				}
+				break;
+			case 'l':
+				for(int i = 0; i < 8; i++){
+					ve[i].x += 0.1;
+				}
+				break;
 		}
 
 		/* draw */
 		clear();
+		for(int i = 0; i < 12; i++) {
+			line3d(*ln[i].a, *ln[i].b, termw<termh ? termw : termh);
+		}
 		refresh();
 	}
 end:
