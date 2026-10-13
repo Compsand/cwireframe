@@ -18,6 +18,12 @@ typedef struct {
 	float z;
 } V3;
 
+typedef struct {
+	V3 *a;
+	V3 *b;
+} V3set;
+
+/* draws a line between 2 points */
 void line(V2 start, V2 end){
 	/* move cursor to start of line */
 	move(start.y, start.x);
@@ -52,6 +58,31 @@ void line(V2 start, V2 end){
 	}
 }
 
+/* draws a line between 2 3d points */
+/* size is the size of the 2d area to project onto */
+void line3d(V3 start, V3 end, int size){
+	/* avoid division by zero */
+	if(start.z == 0 || end.z == 0) return;
+	
+	/* project */
+	V2 start2d = {start.x / start.z, start.y / start.z};
+	V2 end2d = {end.x / end.z, end.y / end.z};
+	
+	/* translate to terminal coordintates */
+	start2d.x += size / 2;
+	start2d.y += size / 2;
+	end2d.x += size / 2;
+	end2d.y += size / 2;
+
+	start2d.x *= size;
+	start2d.y *= size;
+	end2d.x *= size;
+	end2d.y *= size;
+
+	/* draw!! */
+	line(start2d, end2d);
+}
+
 int main(int argc, char *argv[])
 {
 	initscr();
@@ -60,9 +91,6 @@ int main(int argc, char *argv[])
 	int termw, termh;
 	int paused = 1;
 	getmaxyx(stdscr, termh, termw);
-
-	V2 p1 = {1,1};
-	V2 p2 = {1,1};
 
 	cbreak();
 
@@ -84,35 +112,10 @@ int main(int argc, char *argv[])
 					cbreak();
 				}
 				break;
-			case 'l':
-				p2.x += 1;
-				break;
-			case 'h':
-				p2.x -= 1;
-				break;
-			case 'j':
-				p2.y += 1;
-				break;
-			case 'k':
-				p2.y -= 1;
-				break;
-			case 'L':
-				p1.x += 1;
-				break;
-			case 'H':
-				p1.x -= 1;
-				break;
-			case 'J':
-				p1.y += 1;
-				break;
-			case 'K':
-				p1.y -= 1;
-				break;
 		}
 
-		/* draw line */
+		/* draw */
 		clear();
-		line(p1,p2);
 		refresh();
 	}
 end:
